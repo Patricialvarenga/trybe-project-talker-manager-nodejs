@@ -10,9 +10,11 @@ const {
   isOkTalk,
 } = require('../middlewares/validationsTalker');
 
+const talkerJson = 'talker.json';
+
 talkerRouter.get('/', async (_req, res) => {
   try {
-    const talkers = await fs.readFile('talker.json', 'utf-8');
+    const talkers = await fs.readFile(talkerJson, 'utf-8');
     const talkersReady = JSON.parse(talkers);
     if (!talkersReady) return res.status(200).json([]);
    return res.status(200).json(talkersReady);
@@ -24,7 +26,7 @@ talkerRouter.get('/', async (_req, res) => {
  talkerRouter.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const searchById = await fs.readFile('talker.json', 'utf-8');
+    const searchById = await fs.readFile(talkerJson, 'utf-8');
     const searchByIdReady = JSON.parse(searchById)
     .find((talker) => talker.id === Number(id));
 
@@ -42,7 +44,8 @@ talkerRouter.post('/', isValidToken, isValidName, isValidAge,
   isOkTalk, isValidWatchedAt, isValidRate, async (req, res) => {
      const { name, age, talk: { watchedAt, rate } } = req.body;
 
-     const readTalkers = await fs.readFile('talker.json', 'utf-8');
+    try { 
+    const readTalkers = await fs.readFile(talkerJson, 'utf-8');
      const talkersReady = JSON.parse(readTalkers);
      const id = talkersReady.length > 0 ? talkersReady[talkersReady.length - 1].id + 1 : 1;
 
@@ -51,6 +54,28 @@ talkerRouter.post('/', isValidToken, isValidName, isValidAge,
      talkersReady.push(newTalker);
      await fs.writeFile('talker.json', JSON.stringify(talkersReady));
      return res.status(201).json(newTalker);
+    } catch (err) {
+      return res.status(500).json({ err });
+    }
    });
+
+talkerRouter.put('/:id', isValidToken, isValidName, isValidAge,
+isOkTalk, isValidWatchedAt, isValidRate, async (req, res) => {
+  const { id } = req.params;
+  const { name, age, talk: { watchedAt, rate } } = req.body;
+
+  try {
+    const editTalker = { id: Number(id), name, age, talk: { watchedAt, rate } };
+    const newId = await fs.readFile(talkerJson, 'utf-8');
+    const newIdReady = JSON.parse(newId);
+    const indexOffId = newIdReady.findIndex((talker) => Number(talker.id) === Number(id));
+    newIdReady[indexOffId] = editTalker;
+
+    await fs.writeFile(talkerJson, JSON.stringify(newIdReady));
+    return res.status(200).json(editTalker);
+  } catch (err) {
+    return res.status(500).json({ err });
+  }
+});
 
 module.exports = talkerRouter;
