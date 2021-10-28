@@ -4,7 +4,7 @@ const tokenOn = require('../middlewares/token');
 const {
   isValidEmail,
   isValidPassword,
-} = require('../middlewares/validationsLogin');
+} = require('../middlewares/validationsTalker');
 
 LoginRouter.post(
   '/',
