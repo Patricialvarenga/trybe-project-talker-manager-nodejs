@@ -1,7 +1,7 @@
-const router = require('express').Router();
+const talkerRouter = require('express').Router();
 const fs = require('fs').promises;
 
-router.get('/', async (_req, res) => {
+talkerRouter.get('/', async (_req, res) => {
   try {
     const talkers = await fs.readFile('talker.json', 'utf-8');
     const talkersReady = JSON.parse(talkers);
@@ -12,7 +12,7 @@ router.get('/', async (_req, res) => {
   }  
 });
 
- router.get('/:id', async (req, res) => {
+ talkerRouter.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const searchById = await fs.readFile('talker.json', 'utf-8');
@@ -29,4 +29,4 @@ router.get('/', async (_req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = talkerRouter;
