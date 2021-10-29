@@ -78,4 +78,17 @@ isOkTalk, isValidWatchedAt, isValidRate, async (req, res) => {
   }
 });
 
+talkerRouter.delete('/:id', isValidToken, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const idJson = await fs.readFile(talkerJson, 'utf-8');
+    const idParse = JSON.parse(idJson).findIndex((talker) => Number(talker.id) !== Number(id));
+
+    await fs.writeFile(talkerJson, JSON.stringify(idParse));
+    return res.status(200).json({ message: 'Pessoa palestrante deletada com sucesso' }); 
+  } catch (err) {
+    return res.status(500).json({ err });
+  } 
+});
+
 module.exports = talkerRouter;
